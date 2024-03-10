@@ -4,7 +4,7 @@ I developed a simple note-taking web application using TypeScript. The applicati
 
 My purpose in writing this software was to deepen my understanding of TypeScript and improve my skills as a software engineer. By building a real-world application, I gained practical experience in using TypeScript for web development and learned how to leverage its features to write more robust and maintainable code.
 
-[Software Demo Video](http://youtube.link.goes.here)
+[TypeScript Note Taking Project](https://youtu.be/nPx3xXw0KdQ)
 
 # Development Environment
 
