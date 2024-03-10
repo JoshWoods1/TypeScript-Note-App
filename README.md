@@ -17,8 +17,6 @@ For this project, I used the following tools and technologies:
 
 # Useful Websites
 
-{Make a list of websites that you found helpful in this project}
-
 - [W3Schools](https://www.w3schools.com/typescript/index.php)
 - [TypeScript](https://www.typescriptlang.org/)
 
