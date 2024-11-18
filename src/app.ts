@@ -1,104 +1,138 @@
-const input = document.querySelector<HTMLInputElement>("#noteInput");
+const inputHeading = document.querySelector<HTMLInputElement>("#noteHeading");
+const inputSubheading = document.querySelector<HTMLInputElement>("#noteSubheading");
+const inputBody = document.querySelector<HTMLInputElement>("#noteBody");
 const list = document.querySelector<HTMLUListElement>("#list");
 const form = document.querySelector<HTMLFormElement>("#new-note-form");
 
-let Notes: Note[] = loadNotes(); // Initialize Notes with notes from localStorage
-
 type Note = {
-    body: string,
-    createdAt: Date
+    heading: string;
+    subheading: string;
+    body: string;
+    createdAt: Date;
 };
+
+let Notes: Note[] = loadNotes();
 
 form?.addEventListener("submit", (e) => {
     e.preventDefault();
 
-    if (!input?.value) return;
+    if (!inputHeading?.value || !inputSubheading?.value || !inputBody?.value) return;
 
     const newNote: Note = {
-        body: input.value,
-        createdAt: new Date()
+        heading: inputHeading.value.trim(),
+        subheading: inputSubheading.value.trim(),
+        body: inputBody.value.trim(),
+        createdAt: new Date(),
     };
 
     Notes.push(newNote);
     addNotes(newNote, Notes.length - 1); // Pass index as Notes.length - 1
-    input.value = "";
-    saveNotes(); // Save notes after adding a new note
+    inputHeading.value = "";
+    inputSubheading.value = "";
+    inputBody.value = "";
+    saveNotes();
 });
 
 function addNotes(note: Note, index: number) {
     const item = document.createElement("li");
 
-    // Create container for note content
-    const contentContainer = document.createElement("div");
-    contentContainer.textContent = note.body;
+    // Create heading
+    const headingElement = document.createElement("h2");
+    headingElement.textContent = note.heading;
+
+    // Create subheading
+    const subheadingElement = document.createElement("h3");
+    subheadingElement.textContent = note.subheading;
+
+    // Create body
+    const bodyElement = document.createElement("p");
+    bodyElement.textContent = note.body;
 
     // Create edit button
     const editButton = document.createElement("button");
     editButton.textContent = "Edit";
-    editButton.addEventListener("click", () => toggleEdit(index, contentContainer));
+    editButton.addEventListener("click", () => toggleEdit(index, item));
 
     // Create delete button
     const deleteButton = document.createElement("button");
     deleteButton.textContent = "Delete";
     deleteButton.addEventListener("click", () => deleteNote(index));
 
-    // Append content container and buttons to item
-    item.appendChild(contentContainer);
+    // Append elements to list item
+    item.appendChild(headingElement);
+    item.appendChild(subheadingElement);
+    item.appendChild(bodyElement);
     item.appendChild(editButton);
     item.appendChild(deleteButton);
 
-    // Append item to list
+    // Append list item to the list
     list?.appendChild(item);
 }
 
-function toggleEdit(index: number, contentContainer: HTMLDivElement) {
+function toggleEdit(index: number, listItem: HTMLLIElement) {
     const note = Notes[index];
 
-    // Create input field for editing
-    const inputField = document.createElement("input");
-    inputField.type = "text";
-    inputField.value = note.body;
+    // Replace content with input fields
+    const inputHeading = document.createElement("input");
+    inputHeading.type = "text";
+    inputHeading.value = note.heading;
 
-    // Create save button
+    const inputSubheading = document.createElement("input");
+    inputSubheading.type = "text";
+    inputSubheading.value = note.subheading;
+
+    const inputBody = document.createElement("input");
+    inputBody.type = "text";
+    inputBody.value = note.body;
+
     const saveButton = document.createElement("button");
     saveButton.textContent = "Save";
-    saveButton.addEventListener("click", () => saveEdit(index, inputField));
+    saveButton.addEventListener("click", () =>
+        saveEdit(index, inputHeading, inputSubheading, inputBody)
+    );
 
-    // Replace content container with input field and save button
-    contentContainer.replaceWith(inputField, saveButton);
-
-    // Focus on the input field
-    inputField.focus();
+    // Clear list item and append input fields and save button
+    listItem.innerHTML = "";
+    listItem.appendChild(inputHeading);
+    listItem.appendChild(inputSubheading);
+    listItem.appendChild(inputBody);
+    listItem.appendChild(saveButton);
 }
 
-function saveEdit(index: number, inputField: HTMLInputElement) {
-    const newBody = inputField.value.trim();
-    if (newBody === "") return; // Do not save empty note
+function saveEdit(
+    index: number,
+    inputHeading: HTMLInputElement,
+    inputSubheading: HTMLInputElement,
+    inputBody: HTMLInputElement
+) {
+    const newHeading = inputHeading.value.trim();
+    const newSubheading = inputSubheading.value.trim();
+    const newBody = inputBody.value.trim();
 
-    Notes[index].body = newBody;
+    if (!newHeading || !newSubheading || !newBody) return; // Do not save if any field is empty
+
+    Notes[index] = {
+        ...Notes[index],
+        heading: newHeading,
+        subheading: newSubheading,
+        body: newBody,
+    };
+
     saveNotes();
     renderNotes();
 }
-
-
 
 function saveNotes() {
     localStorage.setItem("NOTES", JSON.stringify(Notes));
 }
 
 function loadNotes(): Note[] {
-    const noteJSON = localStorage.getItem("NOTES");
-    if (!noteJSON) return [];
-    return JSON.parse(noteJSON);
-}
-
-function editNote(index: number) {
-    const newBody = prompt("Enter new note content:");
-    if (newBody === null || newBody === "") return; // Cancelled or empty input
-
-    Notes[index].body = newBody;
-    saveNotes();
-    renderNotes();
+    const notesJSON = localStorage.getItem("NOTES");
+    if (!notesJSON) return [];
+    return JSON.parse(notesJSON).map((note: Note) => ({
+        ...note,
+        createdAt: new Date(note.createdAt),
+    }));
 }
 
 function deleteNote(index: number) {
@@ -108,7 +142,7 @@ function deleteNote(index: number) {
 }
 
 function renderNotes() {
-    if (!list) return; // Check if list is null
+    if (!list) return;
 
     list.innerHTML = ""; // Clear list
     Notes.forEach((note, index) => {

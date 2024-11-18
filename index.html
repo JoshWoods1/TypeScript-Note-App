@@ -9,7 +9,9 @@
 <body>
     <h1>Note Taking App</h1>
     <form id="new-note-form">
-        <input type="text" id="noteInput" placeholder="Enter your note">
+        <input type="text" id="noteHeading" placeholder="Enter note heading" required>
+        <input type="text" id="noteSubheading" placeholder="Enter note subheading" required>
+        <textarea id="noteInput" placeholder="Enter your note content" required></textarea>
         <button type="submit">Add Note</button>
     </form>
     <ul id="list"></ul>
